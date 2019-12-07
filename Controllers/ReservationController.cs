@@ -13,14 +13,22 @@ namespace ApiControllers.Controllers
         [HttpGet]
         public IEnumerable<Reservation> Get() => repository.Reservations;
         [HttpGet("{id}")]
-        public Reservation Get(int id) => repository[id];
+        public IActionResult Get(int id) {
+            Reservation result = repository[id];
+            if (result == null) {
+                return NotFound();
+            } else {
+                return Ok(result);
+            }
+        }
+        private Reservation GetById(int id) => repository[id];
         [HttpPost]
         public Reservation Post([FromBody] Reservation res) =>
             repository.AddReservation(res);
         [HttpPatch("{id}")]
         public StatusCodeResult Patch(int id,
             [FromBody] JsonPatchDocument<Reservation> patch) {
-                Reservation res = Get(id);
+                Reservation res = GetById(id) ;
                 if (res != null) {
                     patch.ApplyTo(res);
                     return Ok();
